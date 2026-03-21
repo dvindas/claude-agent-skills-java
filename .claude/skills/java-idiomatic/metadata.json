@@ -1,0 +1,8 @@
+{
+  "name": "java-idiomatic",
+  "version": "1.0.0",
+  "description": "Write idiomatic modern Java using the right language feature for each problem. Use this skill whenever writing new Java code, reviewing or modernizing existing code, or choosing between old and modern constructs. Trigger on mentions of: records, streams, Optional, var, text blocks, sealed classes, pattern matching, virtual threads, null safety, immutability, resource handling, HttpClient, or any collection/data-handling code. Also use when the user has boilerplate-heavy Java that could be simplified.",
+  "author": "dvindas",
+  "tags": ["java", "modern-java", "best-practices", "effective-java", "null-safety", "streams", "records", "pattern-matching", "virtual-threads"],
+  "created": "2026-03-20"
+}

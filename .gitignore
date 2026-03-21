@@ -1,0 +1,59 @@
+# IntelliJ IDEA
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/dataSources/
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/gradle.xml
+.idea/libraries/
+.idea/httpRequests/
+.idea/caches/
+
+# IntelliJ IDEA output
+out/
+*.class
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+
+# Java
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Claude Code local settings
+.claude/settings.local.json
