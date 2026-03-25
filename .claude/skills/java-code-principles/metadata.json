@@ -1,0 +1,8 @@
+{
+  "name": "java-code-principles",
+  "version": "1.0.0",
+  "description": "Write and review Java code following established code quality principles, largely inspired by Robert C. Martin's (Uncle Bob) Clean Code — adapted to modern Java and current practices. Covers naming, functions, comments, classes, error handling, formatting, objects vs data structures, and DRY — with original Java examples using records, sealed types, Optional, and pattern matching.",
+  "author": "dvindas",
+  "tags": ["java", "code-quality", "refactoring", "code-review", "naming", "srp", "readability", "best-practices", "formatting", "error-handling"],
+  "created": "2026-03-31"
+}

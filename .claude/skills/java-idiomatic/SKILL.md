@@ -18,55 +18,28 @@ metadata:
 
 Apply these patterns by default when writing or reviewing Java code.
 
-## Default Rules
+## Guiding Philosophy
 
-Apply these without being asked:
+Idiomatic Java is modern Java. The language keeps evolving to give you constructs that are safer, shorter, and harder to misuse than the patterns they replace: records over verbose data classes, `Optional` over null returns, streams over manual loops, sealed types over open hierarchies. Each exists because it handles the problem more effectively than what came before.
 
-- Reject null at public method boundaries with `Objects.requireNonNull` — makes the contract explicit and surfaces bugs at the entry point rather than deep inside the call stack.
-- Return `Optional<T>` instead of `null` from any method that may produce no result — forces callers to handle the absent case and eliminates silent NullPointerExceptions.
-- Return empty collections instead of `null` — callers can iterate or stream safely without a null check.
-- Use `final` on local variables and parameters that are never reassigned — communicates intent and prevents accidental mutation.
-- Use `var` when the type is obvious from the right-hand side — reduces noise without sacrificing clarity.
-- Declare variables, parameters, and return types using the interface type, not the concrete class — decouples the contract from the implementation so the concrete type can be swapped without touching callers.
-- Prefer `record` over a plain class for any simple data holder — eliminates boilerplate (getters, equals, hashCode, toString) and makes immutability the default.
-- Use `List.of`, `Map.of`, `Set.of` for fixed collections; never `Arrays.asList` — factory methods return truly immutable collections and reject null entries eagerly.
-- Use modern API replacements: `java.time` over `Date`/`Calendar`, `ArrayDeque` over `Stack`, `HashMap` over `Hashtable` — legacy types are poorly designed, often synchronized when you don't need it, or carry broken semantics.
-- Close all resources with try-with-resources — guarantees cleanup even when exceptions are thrown, without requiring a finally block.
+The goal is to close the gap between what you intend and what you write by choosing the construct designed for the job. When something requires boilerplate, manual discipline, or extra code to stay correct, the language has almost certainly provided a better way.
+
+When reviewing or writing Java, ask: is there a modern construct that handles this more effectively? If yes, use it.
 
 ---
 
-## Feature Selection Guide
+## Quick Reference
 
-| When you need to...                                              | Use                    | Since |
-| ---------------------------------------------------------------- | ---------------------- |-------|
-| Prevent a variable or param from being reassigned                | `final`                | N/A   |
-| Reject null inputs immediately                                   | `Objects.requireNonNull` | N/A |
-| Fall back to a default when a value may be null                  | `Objects.requireNonNullElse` | 9 |
-| Compare two values where either may be null                      | `Objects.equals`       | N/A   |
-| Hash multiple fields without null checks                         | `Objects.hash`         | N/A   |
-| Strip null entries from a stream                                 | `.filter(Objects::nonNull)` | N/A |
-| Expose a collection without allowing mutation                    | Unmodifiable collections | N/A |
-| Close resources safely                                           | try-with-resources     | N/A   |
-| Model a fixed set of named values                                | `enum`                 | N/A   |
-| Avoid scattering repeated literals across the codebase           | Named `static final` constant | N/A |
-| Communicate the exact failure reason when throwing               | Specific exceptions    | N/A   |
-| Build a string piece by piece in a single thread                 | `StringBuilder`        | N/A   |
-| Build a string piece by piece across multiple threads            | `StringBuffer`         | N/A   |
-| Declare variables, params, and return types by contract          | Interface type (`List`, `Map`, `Set`, ...) | N/A |
-| Return no result without using null                              | `Optional<T>`          | N/A   |
-| Return a collection that may be empty                            | Empty collection (`List.of()`, `Collections.emptyList()`) | 9 |
-| Filter, transform, sort, or aggregate elements in a collection   | Stream API             | N/A   |
-| Represent a date, time, duration, or timezone                    | `java.time` (`LocalDate`, `ZonedDateTime`, `Instant`, `Duration`) | N/A |
-| Replace a legacy `Stack`                                         | `ArrayDeque`           | N/A   |
-| Replace a legacy `Hashtable`                                     | `HashMap` / `ConcurrentHashMap` | N/A |
-| Create a small immutable collection inline                       | `List.of`, `Map.of`, `Set.of` | 9  |
-| Declare a local variable whose type is obvious from context      | `var`                  | 10    |
-| Send an HTTP request without third-party dependencies            | `HttpClient`           | 11    |
-| Group related fields into a simple, immutable data class         | Record                 | 16    |
-| Embed a multiline string like SQL, JSON, or HTML cleanly in code | Text block             | 15    |
-| Restrict a type to a known, closed set of subtypes               | Sealed class/interface | 17    |
-| Match and destructure types with switch expressions or instanceof | Pattern matching       | 21    |
-| Avoid tying up OS threads while waiting on blocking I/O tasks    | Virtual threads        | 21    |
+- Reject null at public method boundaries with `Objects.requireNonNull`: makes the contract explicit and surfaces bugs at the entry point rather than deep inside the call stack.
+- Return `Optional<T>` instead of `null` from any method that may produce no result, forcing callers to handle the absent case and eliminating silent NullPointerExceptions.
+- Return empty collections instead of `null`; callers can iterate or stream safely without a null check.
+- Use `final` on local variables and parameters that are never reassigned, communicating intent and preventing accidental mutation.
+- Use `var` when the type is obvious from the right-hand side, reducing noise without sacrificing clarity.
+- Declare variables, parameters, and return types using the interface type, not the concrete class; this decouples the contract from the implementation so the concrete type can be swapped without touching callers.
+- Prefer `record` over a plain class for any simple data holder; it eliminates boilerplate (getters, equals, hashCode, toString) and makes immutability the default.
+- Use `List.of`, `Map.of`, `Set.of` for fixed collections; never `Arrays.asList`. Factory methods return truly immutable collections and reject null entries eagerly.
+- Use modern API replacements: `java.time` over `Date`/`Calendar`, `ArrayDeque` over `Stack`, `HashMap` over `Hashtable`. Legacy types are poorly designed, often synchronized when you don't need it, or carry broken semantics.
+- Close all resources with try-with-resources; it guarantees cleanup even when exceptions are thrown, without requiring a finally block.
 
 ---
 
@@ -85,7 +58,7 @@ public void process(final Order order) {
 
 ### Fail fast on bad input
 
-Validate inputs at the start of every method. Catching problems at the entry point makes bugs easier to trace.
+This follows the fail-fast principle: surface problems as early as possible. Validate the parameters of every public method signature so that failures happen at the entry point, close to the source, rather than deep inside the call stack where the root cause is harder to trace.
 
 ```java
 public Invoice createInvoice(Customer customer, List<Item> items) {
@@ -209,7 +182,7 @@ var stats = employees.stream().collect(Collectors.teeing(
 - Prefer method references over lambdas when they express the same intent
 - Use `flatMap` to flatten nested collections
 - Streams are single-use; never store and reuse them
-- Use parallel streams only when processing large collections with expensive operations
+- Use parallel streams only when there is a clear performance improvement to gain: large collections with expensive per-element operations. Applying them everywhere introduces thread overhead, ordering issues, and harder-to-debug behavior without benefit.
 
 ### Optional (Since Java 8)
 
@@ -243,7 +216,7 @@ String city = Optional.ofNullable(order)
 
 ### Prefer modern APIs over legacy equivalents
 
-See the Feature Selection Guide above for the full legacy→modern mapping. The most common substitutions in practice:
+The most common substitutions in practice:
 
 **Date and time - `java.time` (Since Java 8)**
 
@@ -280,7 +253,7 @@ Deque<String> stack = new ArrayDeque<>();             // faster, not synchronize
 
 ### String Concatenation
 
-Strings are immutable — `+` inside a loop creates a new object on every iteration. Use `StringBuilder` instead; if multiple threads share the builder, use `StringBuffer` (same API, all methods synchronized).
+Strings are immutable: `+` inside a loop creates a new object on every iteration. Use `StringBuilder` instead; if multiple threads share the builder, use `StringBuffer` (same API, all methods synchronized).
 
 ```java
 StringBuilder sb = new StringBuilder();
@@ -401,7 +374,7 @@ double area = switch (shape) {
 
 ### Pattern Matching (Since Java 17-21)
 
-Prefer switch expressions over switch statements — they return a value, enforce exhaustiveness at compile time, and eliminate fall-through bugs. This makes the code both safer and more concise.
+Prefer switch expressions over switch statements: they return a value, enforce exhaustiveness at compile time, and eliminate fall-through bugs. This makes the code both safer and more concise.
 
 **instanceof check (Java 17)** - for a single type check inline.
 
@@ -438,7 +411,7 @@ String description = switch (obj) {
 
 ### Modern HTTP Client (Since Java 11)
 
-`HttpClient` is the standard since Java 11. Prefer it over `HttpURLConnection` — it supports async requests, connection pooling, HTTP/2, and has a clean builder API. `HttpURLConnection` requires manual stream handling and lacks async support.
+`HttpClient` is the standard since Java 11. Prefer it over `HttpURLConnection`: it supports async requests, connection pooling, HTTP/2, and has a clean builder API. `HttpURLConnection` requires manual stream handling and lacks async support.
 
 ```java
 // Reuse a single instance (manages connection pooling)
@@ -496,4 +469,4 @@ CompletableFuture.allOf(
 
 ## Common Mistakes
 
-Read `references/common-mistakes.md` when reviewing or modernizing existing Java code — it contains a full lookup table of anti-patterns and their modern replacements.
+Read `references/common-mistakes.md` when reviewing or modernizing existing Java code; it contains a full lookup table of anti-patterns and their modern replacements.
